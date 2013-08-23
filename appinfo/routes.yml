@@ -1,0 +1,41 @@
+routes:
+  - name: questionnaire#index
+    url: /
+    verb: GET
+
+  - name: questionnaire#newForm
+    url: /new
+    verb: GET
+
+  - name: questionnaire#edit
+    url: /questionnaire/{Id}/edit
+    verb: GET
+
+  - name: questionnaire#update
+    url: /questionnaire/{Id}/edit
+    verb: POST
+
+  - name: questionnaire#create
+    url: /new
+    verb: POST
+
+  - name: questionnaire#show
+    url: /questionnaire/{Id}
+    verb: GET
+
+#  - name: questionnaire#update
+#    url: /questionnaire/{Id}
+#    verb: PUT
+
+  - name: questionnaire#delete
+    url: /questionnaire/{Id}/delete
+    verb: GET
+
+  - name: questionnaire#destroy
+    url: /questionnaire/{Id}/destroy
+    verb: POST
+
+#resources:
+#    questionnaire:
+#      url: /questionnaire
+#      params: key

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<info>
+    <id>salesquestionnaire</id>
+    <name>Sales Questionnaire</name>
+    <description>From contacts, to sales questionnaires, to projects, to profits</description>
+    <version>0.174</version>
+    <licence>AGPL</licence>
+    <author>Pete McFarlane</author>
+    <require>5</require>
+    <standalone />
+</info>

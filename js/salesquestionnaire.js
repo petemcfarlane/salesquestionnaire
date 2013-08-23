@@ -4,25 +4,14 @@ $(document).ready(function() {
 	 * PJAX
 	 * -----------------------*/
 
-	//if ($.support.pjax) {
-	//	$(document).pjax('#content a', '#content'); // every 'a' within '#content' to be clicked will load the content in '#content'
-	//}
-
 	$(document).on('click', '#content a[href!=#]', function(e) {
+	    if ($(this).hasClass('contact_info_link')) return
         $.pjax.click(e, '#content')
 	})
 	
 	$(document).on('submit', '#content form', function(e) {
 	    $.pjax.submit(e, '#content')
 	})
-
-	//$('#content form').on('submit', function(event) {
-	//	var input = $("<input>").attr("type", "hidden").attr("name", "requesttoken").val($('head').data('requesttoken'));
-	//	$(this).append($(input));
-	//	console.log($(this));
-	//});
-	
-	$('.tip').tipsy({gravity:'n', fade:true})
 
 	/* ------------------------
 	 * Load contacts
@@ -52,8 +41,8 @@ $(document).ready(function() {
     function addMeetingWith() {
         $('#meetingWithMarker').before('<div class="row collapse">'
             + '<input type="hidden" name="meetingWith[]" value="' + $('.suggestions li.selected').data('id') + '" />'
-            + '<div class="small-3 large-2 columns"><a class="small-12 prefix removePerson button secondary" data-id="' + $('.suggestions li.selected').data('id') + '">Remove</a></div>'
-            + '<div class="small-9 large-10 columns"><input type="text" value="' + $('.suggestions li.selected').text() + '" readonly /></div>'
+            + '<div class="small-2 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="' + $('.suggestions li.selected').data('id') + '">Remove</a></div>'
+            + '<div class="small-10 large-11 columns"><input type="text" value="' + $('.suggestions li.selected').text() + '" readonly /></div>'
             + '</div>').val('').focus()
         currentContacts.push( $('.suggestions li.selected').data('id') )
         clearSuggestions()
@@ -108,10 +97,6 @@ $(document).ready(function() {
         clearSuggestions()
     }
 
-
-
-
-
     function listSuggestions(input, exclude) {
         exclude = typeof exclude !== 'undefined' ? exclude : []
         clearSuggestions()
@@ -152,5 +137,41 @@ $(document).ready(function() {
     })
 
 
-    
+    /* ------------------------
+     * Load contact details
+     * -----------------------*/
+
+    $('#content').on('click', '.contact_info_link', function(e) {
+        e.preventDefault()
+        $('.contact-info-container').remove()
+        $.post( OC.filePath('salesquestionnaire', 'ajax', 'contactinfo.php'), 'contactId='+$(this).data('id'), function(data) {
+            console.log(data)
+            var contactInfo = '<div class="contact-info-container row">'
+                + '<div class="contact-info large-12 columns">'
+                    + '<div class="row">'
+                        + '<div class="columns small-3 center">'
+                            + '<img src="/index.php/apps/contacts/photo.php?id=' + data['id'] + '" />'
+                        + '</div>'
+                        + '<div class="columns small-9">'
+                            + '<h3>' + data['details']['FN'][0]['value'] + '</h3>'
+                            + '<p>' + data['details']['TITLE'][0]['value'] + '</p>'
+                            + '<p>' + data['details']['ORG'][0]['value'] + '</p>'
+                        + '</div>'
+                    + '</div>'
+                    if (data['details']['EMAIL'].length > 0) {
+                        for(var i=0;i<data['details']['EMAIL'].length;i++){
+                            contactInfo += '<div class="row"><div class="columns small-3">'+data['details']['EMAIL'][i]['parameters']['TYPE'] +'</div><div class="columns small-9">'+ data['details']['EMAIL'][i]['value'] +'</div></div>'
+                        }
+                    }
+                    contactInfo += '<div class="row"><div class="columns small-3">Mobile</div><div class="columns small-9">'+ data['details']['TEL'][0]['value'] +'</div></div>'
+                    + '<div class="row"><div class="columns small-3">Homepage</div><div class="columns small-9">'+ data['details']['URL'][0]['value'] +'</div></div>'
+                    + '<div class="row"><div class="columns small-3">Work</div><div class="columns small-9">'+ data['details']['ADR'][0]['value'] +'</div></div>'
+                    + '<div class="row"><div class="columns small-3">Birthday</div><div class="columns small-9">'+ data['details']['BDAY'][0]['value'] +'</div></div>'
+                    + '<div class="row"><div class="columns small-3">Notes</div><div class="columns small-9">'+ data['details']['NOTE'][0]['value'] +'</div></div>'
+                + '</div>'
+            + '</div>'
+            $('.contact_info_link[data-id='+data['id']+']').after(contactInfo)
+        }, "json")
+    })
+
 })

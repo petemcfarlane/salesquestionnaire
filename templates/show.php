@@ -1,3 +1,4 @@
+<title>View Sales Questionnaire | Sontia Cloud</title>
 <div class="row">
 	<div class="columns">
 		<h1>Sales questionnaire</h1>
@@ -63,11 +64,9 @@
 <div class="row">
 	<div class="columns large-12">
 		<label class="inline">Meeting with:</label>
-		<ul>
 			{% for contact in questionnaire.meetingWith %}
-				<li>{{ contact.fullname }}</li>
+				<a class="contact_info_link" href="/index.php/apps/contacts#{{ contact.id }}" data-id="{{ contact.id }}">{{ contact.fullname }}{{ loop.last ? "" : ", " }}</a>
 			{% endfor %}
-		</ul>
 	</div>
 </div>
 {% endif %}

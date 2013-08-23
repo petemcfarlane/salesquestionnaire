@@ -1,3 +1,4 @@
+<title>Delete Sales Questionnaire | Sontia Cloud</title>
 <div class="row">
 	<div class="columns">
 		<h1>Delete sales questionnaire</h1>

@@ -1,3 +1,4 @@
+<title>New Sales Questionnaire | Sontia</title>
 <div class="row">
 	<div class="columns">
 		<h1>New sales questionnaire</h1>

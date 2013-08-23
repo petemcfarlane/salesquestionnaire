@@ -45,7 +45,7 @@ class QuestionnaireController extends Controller {
 		$questionnaire->setProjectName($request->projectName);
 		$questionnaire->setProjectType($request->projectType);
 		$questionnaire->setPlatform($request->platform);
-		$questionnaire->setMeetingWith(implode(',', array_values(array_filter($request->meetingWith))));
+		if (isset($request->meetingWith) ) $questionnaire->setMeetingWith(implode(',', array_values(array_filter($request->meetingWith))));
 		$questionnaire->setMeetingDate(self::formatDate($request->meetingDate));
 		$questionnaire->setMeetingLocation($request->meetingLocation);
 		$questionnaire->setRepresentative($request->representative);

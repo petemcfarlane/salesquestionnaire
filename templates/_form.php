@@ -16,8 +16,8 @@
 				{% for person in questionnaire.meetingWith %}
 					<div class="row collapse">
 						<input type="hidden" name="meetingWith[]" value="{{ person.id }}" class="meetingWith" />
-						<div class="small-3 large-2 columns"><a class="small-12 prefix removePerson button secondary" data-id="{{ person.id }}">Remove</a></div>
-						<div class="small-9 large-10 columns"><input type="text" value="{{ person.fullname}}" readonly /></div>
+						<div class="small-2 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="{{ person.id }}">Remove</a></div>
+						<div class="small-10 large-11 columns"><input type="text" value="{{ person.fullname}}" readonly /></div>
 					</div>
 				{% endfor %}
 			{% endif %}
@@ -36,11 +36,12 @@
 		<label>Meeting Purpose</label>
 	</div>
 	<div class="columns large-12">
-		<div class="columns small-6 large-3"><label><input type="checkbox" name="meetingPurpose[]" value="Technical Discussion" {{ 'Technical Discussion' in questionnaire.meetingPurpose ? "checked " : ""}}/>Technical Discussion</label></div>
-		<div class="columns small-6 large-3"><label><input type="checkbox" name="meetingPurpose[]" value="Commercial Discussion" {{ 'Commercial Discussion' in questionnaire.meetingPurpose ? "checked " : ""}}/>Commercial Discussion</label></div>
-		<div class="columns small-6 large-3"><label><input type="checkbox" name="meetingPurpose[]" value="Present Quotation" {{ 'Present Quotation' in questionnaire.meetingPurpose ? "checked " : ""}}/>Present Quotation</label></div>
-		<div class="columns small-6 large-3"><label><input type="checkbox" name="meetingPurpose[]" value="Negotiate Order" {{ 'Negotiate Order' in questionnaire.meetingPurpose ? "checked " : ""}}/>Negotiate Order</label></div>
+		<div class="columns small-6 large-3"><p><label class="normal"><input type="checkbox" name="meetingPurpose[]" value="Technical Discussion" {{ 'Technical Discussion' in questionnaire.meetingPurpose ? "checked " : ""}}/>Technical Discussion</label></p></div>
+		<div class="columns small-6 large-3"><p><label class="normal"><input type="checkbox" name="meetingPurpose[]" value="Commercial Discussion" {{ 'Commercial Discussion' in questionnaire.meetingPurpose ? "checked " : ""}}/>Commercial Discussion</label></p></div>
+		<div class="columns small-6 large-3"><p><label class="normal"><input type="checkbox" name="meetingPurpose[]" value="Present Quotation" {{ 'Present Quotation' in questionnaire.meetingPurpose ? "checked " : ""}}/>Present Quotation</label></p></div>
+		<div class="columns small-6 large-3"><p><label class="normal"><input type="checkbox" name="meetingPurpose[]" value="Negotiate Order" {{ 'Negotiate Order' in questionnaire.meetingPurpose ? "checked " : ""}}/>Negotiate Order</label></p></div>
 	</div>
+	<br />
 </div>
 <div class="row">
 	<div class="columns large-3"><label for="technicalAuthorityMarker">Technical Authority</label>

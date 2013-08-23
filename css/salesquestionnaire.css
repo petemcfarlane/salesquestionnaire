@@ -46,7 +46,7 @@
 #content textarea {height:auto; min-height:80px}
 #content label {font-size:.875em; color:#4D4D4D; cursor:pointer; display:block; margin-bottom:.1875em}
 #content label.inline {display:inline-block}
-#content input[type="checkbox"] {margin:.5em .5em .5em 0}
+#content input[type="checkbox"] {margin:0 .5em 0 0}
 #content input[type="submit"] {border-radius:0}
 
 #content .left {float:left !important}
@@ -226,3 +226,7 @@
 #content .sort.desc:after {content: "\25BC";}
 
 #content .empty {color:#BBB}
+#content .normal {font-weight:normal}
+
+#content .contact-info {background:#FFF; position:absolute; z-index:100; box-shadow:0 3px 5px; border-radius:2px}
+#content .contact-info img {max-width:100%; border-radius:50%}

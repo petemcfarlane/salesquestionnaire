@@ -1,3 +1,4 @@
+<title>Edit Sales Questionnaire | Sontia Cloud</title>
 <div class="row">
 	<div class="columns">
 		<h1>Edit sales questionnaire</h1>

@@ -65,7 +65,7 @@
 	<div class="columns large-12">
 		<label class="inline">Meeting with:</label>
 			{% for contact in questionnaire.meetingWith %}
-				<a class="contact_info_link" href="/index.php/apps/contacts#{{ contact.id }}" data-id="{{ contact.id }}">{{ contact.fullname }}{{ loop.last ? "" : ", " }}</a>
+				<a class="contact_info_link" data-skip-pjax='true' href="/index.php/apps/contacts#{{ contact.id }}" data-id="{{ contact.id }}">{{ contact.fullname }}{{ loop.last ? "" : ", " }}</a>
 			{% endfor %}
 	</div>
 </div>
@@ -88,10 +88,10 @@
 </div>
 <div class="row">
 	<div class="columns large-6">
-		<label class="inline{{ questionnaire.technicalAuthority ? '' : ' empty' }}">Technical authority:</label><p>{{ questionnaire.technicalAuthority.fullname }}</p>
+		<label class="inline{{ questionnaire.technicalAuthority ? '' : ' empty' }}">Technical authority:</label><p><a class="contact_info_link" href="/index.php/apps/contacts#{{ questionnaire.technicalAuthority.id }}" data-id="{{ questionnaire.technicalAuthority.id }}">{{ questionnaire.technicalAuthority.fullname }}</a></p>
 	</div>
 	<div class="columns large-6">
-		<label class="inline{{ questionnaire.commercialAuthority ? '' : ' empty' }}">Commercial authority:</label><p>{{ questionnaire.commercialAuthority.fullname }}</p>
+		<label class="inline{{ questionnaire.commercialAuthority ? '' : ' empty' }}">Commercial authority:</label><p><a class="contact_info_link" href="/index.php/apps/contacts#{{ questionnaire.commercialAuthority.id }}" data-id="{{ questionnaire.commercialAuthority.id }}">{{ questionnaire.commercialAuthority.fullname }}</a></p>
 	</div>
 </div>
 <div class="row">

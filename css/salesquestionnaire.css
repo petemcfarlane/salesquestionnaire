@@ -228,5 +228,9 @@
 #content .empty {color:#BBB}
 #content .normal {font-weight:normal}
 
-#content .contact-info {background:#FFF; position:absolute; z-index:100; box-shadow:0 3px 5px; border-radius:2px}
+#content .contact-info-container.row {position:absolute; max-width:500px; width:100%; background:#FFF; z-index:10; box-shadow:0 1px 8px #999; border-radius:2px; margin-left:-1.25em; padding:1em}
+#content .contact-info h3 {font-size:2em}
+#content .contact-info h4 {color:#666; line-height:1.2; font-size:1.2em}
+#content .contact-info .label {text-align:right; padding-top:.8em; color:#666}
 #content .contact-info img {max-width:100%; border-radius:50%}
+#content .contact-info .value {border-bottom:1px solid #EDEDED; padding:.8em 1.25em; overflow: hidden;}

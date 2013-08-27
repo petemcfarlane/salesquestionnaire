@@ -2,8 +2,8 @@
 <info>
     <id>salesquestionnaire</id>
     <name>Sales Questionnaire</name>
-    <description>From contacts, to sales questionnaires, to projects, to profits</description>
-    <version>0.175</version>
+    <description>Manage and share sales questionnaires</description>
+    <version>1</version>
     <licence>AGPL</licence>
     <author>Pete McFarlane</author>
     <require>5</require>

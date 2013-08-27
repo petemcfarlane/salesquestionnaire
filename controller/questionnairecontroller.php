@@ -16,6 +16,7 @@ class QuestionnaireController extends Controller {
         parent::__construct($api, $request);
 		$this->questionnaireMapper = new QuestionnaireMapper($this->api);
 		$this->api->addStyle('salesquestionnaire');
+		$this->api->addScript('3rdparty/jquery-1.10.2.min');
 		$this->api->addScript('salesquestionnaire');
 		$this->api->addScript('3rdparty/jquery.pjax');
 		$this->renderas = isset($_SERVER['HTTP_X_PJAX']) ? '' : 'user';

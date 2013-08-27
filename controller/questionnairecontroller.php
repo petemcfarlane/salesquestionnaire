@@ -16,7 +16,6 @@ class QuestionnaireController extends Controller {
         parent::__construct($api, $request);
 		$this->questionnaireMapper = new QuestionnaireMapper($this->api);
 		$this->api->addStyle('salesquestionnaire');
-		$this->api->addScript('3rdparty/jquery-1.10.2.min');
 		$this->api->addScript('salesquestionnaire');
 		$this->api->addScript('3rdparty/jquery.pjax');
 		$this->renderas = isset($_SERVER['HTTP_X_PJAX']) ? '' : 'user';
@@ -84,23 +83,21 @@ class QuestionnaireController extends Controller {
 	public function redirect($url='salesquestionnaire.questionnaire.index', $args=array()) {
 		$response = new TemplateResponse($this->api, "index");
 		$response->addHeader('Location', $this->api->linkToRoute($url, $args) );
-		//$response->addHeader('X-PJAX-URL', 'test' );
 		return $response;
 	}
 	
-	public function sortby($questionnaires) {
-		usort($questionnaires, function($a, $b){
-			$a = (array)$a;
-			$b = (array)$b;
-			$sortby = isset($this->request->sortby) ? $this->request->sortby : 'updatedAt';
-			if ($a[$sortby] == $b[$sortby]) return 0;
-			if ($this->request->direction == "desc") return $a[$sortby] > $b[$sortby] ? 1 : -1;
-		    return $a[$sortby] < $b[$sortby]?1:-1;
-		});
-		return $questionnaires;
+
+	public function cmp ($a, $b) {
+		$a = (array)$a;
+		$b = (array)$b;
+		$sortby = $this->request->sortby ? $this->request->sortby : "updatedAt";
+		if ($a[$sortby] == $b[$sortby]) return 0;
+		if ($this->request->direction == "desc") return $a[$sortby] > $b[$sortby] ? 1 : -1;
+		return ($a[$sortby] < $b[$sortby]) ? 1 : -1;
 	}
 
-    /**
+
+   /**
      * @CSRFExemption
      * @IsAdminExemption
      * @IsSubAdminExemption
@@ -122,8 +119,9 @@ class QuestionnaireController extends Controller {
 
 		$userQuestionnaires = $this->questionnaireMapper->findUserQuestionnaires( $this->api->getUserId() );
 		$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0) );
+		usort($questionnaires, array("self", "cmp") );
+		$this->params['questionnaires'] = $questionnaires;
 		$this->params['response'] = $this->request->response;
-		$this->params['questionnaires'] = self::sortby($questionnaires, $this->request->sortby);
 		$this->params['sortby'] = $this->request->sortby;
 		$this->params['direction'] = $this->request->direction;
 		return $this->render('index', $this->params, $this->renderas, array('X-PJAX-URL'=>$this->api->linkToRoute('salesquestionnaire.questionnaire.index') ) );
@@ -184,7 +182,7 @@ class QuestionnaireController extends Controller {
 					if ($shared['permissions'] & \OCP\PERMISSION_SHARE)  $questionnaire['permissions'][] = "SHARE";
 					$this->params['response'] = $this->request->response;
 					$this->params['questionnaire'] = $questionnaire;
-			        return $this->render('show', $this->params, $this->renderas);
+			        return $this->render('show', $this->params, $this->renderas, array('X-PJAX-URL'=>$this->api->linkToRoute('salesquestionnaire.questionnaire.show', array('Id'=>$this->request->Id)) ));
 				} catch (Exception $exception) {
 					$this->params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
 					return $this->render('error', $this->params, $this->renderas);

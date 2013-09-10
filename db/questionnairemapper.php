@@ -49,21 +49,21 @@ class QuestionnaireMapper extends Mapper {
         return $questionnaires;
 	}
 	
-	public function findUserQuestionnaires($uid) {
+	public function getUserQuestionnaires($uid) {
         $sql = 'SELECT `id`, `customer`, `created_at`, `updated_at`, `uid`, `modified_by`, `project_name`, `platform`, `territories`, `oem` FROM `' . $this->getTableName() . '` WHERE `uid` = ?';
         $questionnaires = $this->findAllRows($sql, array($uid));
         return $questionnaires;
 	}
 	
 	public function searchUserQuestionnaires($uid, $search) {
-        $sql = 'SELECT `id`, `customer`, `created_at`, `updated_at`, `uid`, `modified_by`, `project_name`, `platform`, `territories`, `oem` FROM `' . $this->getTableName() . '` WHERE '
-        	. '`customer` LIKE "%'.$search.'%" '
+        $sql = 'SELECT `id`, `customer`, `created_at`, `updated_at`, `uid`, `modified_by`, `project_name`, `platform`, `territories`, `oem` FROM `' . $this->getTableName() . '` WHERE `uid` = ? AND '
+        	. '(`customer` LIKE "%'.$search.'%" '
         	. 'OR `project_name` LIKE "%'.$search.'%" '
         	. 'OR `uid` LIKE "%'.$search.'%" '
         	. 'OR `platform` LIKE "%'.$search.'%" '
         	. 'OR `territories` LIKE "%'.$search.'%" '
-        	. 'OR `oem` LIKE "%'.$search.'%"';
-        $questionnaires = $this->findAllRows($sql, array());
+        	. 'OR `oem` LIKE "%'.$search.'%")';
+        $questionnaires = $this->findAllRows($sql, array($uid));
         return $questionnaires;
 	}
 	

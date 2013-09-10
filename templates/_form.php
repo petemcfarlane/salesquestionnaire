@@ -16,8 +16,8 @@
 				{% for person in questionnaire.meetingWith %}
 					<div class="row collapse">
 						<input type="hidden" name="meetingWith[]" value="{{ person.id }}" class="meetingWith" />
-						<div class="small-2 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="{{ person.id }}">Remove</a></div>
-						<div class="small-10 large-11 columns"><input type="text" value="{{ person.fullname}}" readonly /></div>
+						<div class="small-3 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="{{ person.id }}">Remove</a></div>
+						<div class="small-9 large-11 columns"><input type="text" value="{{ person.fullname}}" readonly /></div>
 					</div>
 				{% endfor %}
 			{% endif %}

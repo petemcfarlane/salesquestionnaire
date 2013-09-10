@@ -88,26 +88,30 @@
 </div>
 <div class="row">
 	<div class="columns large-6">
-		<label class="inline{{ questionnaire.technicalAuthority ? '' : ' empty' }}">Technical authority:</label><p><a class="contact_info_link" href="/index.php/apps/contacts#{{ questionnaire.technicalAuthority.id }}" data-id="{{ questionnaire.technicalAuthority.id }}">{{ questionnaire.technicalAuthority.fullname }}</a></p>
+		<label class="inline{{ questionnaire.technicalAuthority ? '' : ' empty' }}">Technical authority:</label><p><a class="contact_info_link" data-skip-pjax='true' href="/index.php/apps/contacts#{{ questionnaire.technicalAuthority.id }}" data-id="{{ questionnaire.technicalAuthority.id }}">{{ questionnaire.technicalAuthority.fullname }}</a></p>
 	</div>
 	<div class="columns large-6">
-		<label class="inline{{ questionnaire.commercialAuthority ? '' : ' empty' }}">Commercial authority:</label><p><a class="contact_info_link" href="/index.php/apps/contacts#{{ questionnaire.commercialAuthority.id }}" data-id="{{ questionnaire.commercialAuthority.id }}">{{ questionnaire.commercialAuthority.fullname }}</a></p>
-	</div>
-</div>
-<div class="row">
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.technicalRequirements ? '' : ' empty' }}">Technical requirements:</label><p>{{ questionnaire.technicalRequirements }}</p>
-	</div>
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.commercialRequirements ? '' : ' empty' }}">Commercial requirements:</label><p>{{ questionnaire.commercialRequirements }}</p>
+		<label class="inline{{ questionnaire.commercialAuthority ? '' : ' empty' }}">Commercial authority:</label><p><a class="contact_info_link" data-skip-pjax='true' href="/index.php/apps/contacts#{{ questionnaire.commercialAuthority.id }}" data-id="{{ questionnaire.commercialAuthority.id }}">{{ questionnaire.commercialAuthority.fullname }}</a></p>
 	</div>
 </div>
 <div class="row">
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.otherRequirements ? '' : ' empty' }}">Other requirements:</label><p>{{ questionnaire.otherRequirements }}</p>
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.technicalRequirements ? '' : ' empty' }}">Technical requirements:</label><p>{{ questionnaire.technicalRequirements|nl2br }}</p>
 	</div>
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.meetingNotes ? '' : ' empty' }}">Meeting notes:</label><p>{{ questionnaire.meetingNotes }}</p>
+</div>
+<div class="row">
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.commercialRequirements ? '' : ' empty' }}">Commercial requirements:</label><p>{{ questionnaire.commercialRequirements|nl2br }}</p>
+	</div>
+</div>
+<div class="row">
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.otherRequirements ? '' : ' empty' }}">Other requirements:</label><p>{{ questionnaire.otherRequirements|nl2br }}</p>
+	</div>
+</div>
+<div class="row">
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.meetingNotes ? '' : ' empty' }}">Meeting notes:</label><p>{{ questionnaire.meetingNotes|nl2br }}</p>
 	</div>
 </div>
 <div class="row">
@@ -171,18 +175,22 @@
 	</div>
 </div>
 <div class="row">
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.convince ? '' : ' empty' }}">Convince:</label><p>{{ questionnaire.convince }}</p>
-	</div>
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.tasks ? '' : ' empty' }}">Tasks:</label><p>{{ questionnaire.tasks }}</p>
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.convince ? '' : ' empty' }}">Convince:</label><p>{{ questionnaire.convince|nl2br }}</p>
 	</div>
 </div>
 <div class="row">
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.generalNotes ? '' : ' empty' }}">General notes:</label><p>{{ questionnaire.generalNotes }}</p>
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.tasks ? '' : ' empty' }}">Tasks:</label><p>{{ questionnaire.tasks|nl2br }}</p>
 	</div>
-	<div class="columns large-6">
-		<label class="inline{{ questionnaire.riskAssessment ? '' : ' empty' }}">Risk assessment:</label><p>{{ questionnaire.riskAssessment }}</p>
+</div>
+<div class="row">
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.generalNotes ? '' : ' empty' }}">General notes:</label><p>{{ questionnaire.generalNotes|nl2br }}</p>
+	</div>
+</div>
+<div class="row">
+	<div class="columns large-12">
+		<label class="inline{{ questionnaire.riskAssessment ? '' : ' empty' }}">Risk assessment:</label><p>{{ questionnaire.riskAssessment|nl2br }}</p>
 	</div>
 </div>

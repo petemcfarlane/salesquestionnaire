@@ -1,6 +1,6 @@
 /*
  * primary - #2ba6cb - #3A76C3
- * primary.border-colour 2284a1 - 2e5e9c
+ * primary.border-color 2284a1 - 2e5e9c
  */
 
 #content {background:#fff; font:normal 14px "Helvetica Neue",Helvetica,Arial,FreeSans,sans-serif; color:#000}
@@ -20,7 +20,7 @@
 #content .columns {position:relative; padding:0 1.25em; float:left; width:100%}
 #content form .row .row.collapse .columns {padding:0}
 #content h1 {margin:0.67em 0; font-size:2em}
-#content p {font-family:inherit; font-weight:normal; font-size:1em; line-height:1.6; margin-bottom:1.25em; text-rendering:optimizeLegibility}
+#content p {font-family:inherit; font-weight:normal; font-size:1em; line-height:1.6; margin-bottom:1.25em}
 
 #content input[type="text"],
 #content input[type="password"],
@@ -43,7 +43,7 @@
 #content input[type="time"]:focus,
 #content input[type="url"]:focus,
 #content textarea:focus {background:#fafafa; border-color:#999; outline:none; -webkit-box-shadow:0 0 5px#999; -moz-box-shadow:0 0 5px#999; box-shadow:0 0 5px#999; border-color:#999}
-#content textarea {height:auto; min-height:80px}
+#content textarea {height:auto; min-height:100px}
 #content label {font-size:.875em; color:#4D4D4D; cursor:pointer; display:block; margin-bottom:.1875em}
 #content label.inline {display:inline-block}
 #content input[type="checkbox"] {margin:0 .5em 0 0}
@@ -180,7 +180,7 @@
 
 #content .hide-for-small {display:none !important}
 /* large devices */
-@media only screen and (min-width:768px) {	#content .large-1 {position:relative; width:8.33333%}
+@media only screen and (min-width:768px) {	
     #content .hide-for-small {display:inherit !important}
     /* Specific visilbity for tables */
     #content table.hide-for-small {display:table}
@@ -190,6 +190,7 @@
     #content td.hide-for-small,
     #content th.hide-for-small {display:table-cell !important}
 
+	#content .large-1 {position:relative; width:8.33333%}
 	#content .large-2 {position:relative; width:16.66667%}
 	#content .large-3 {position:relative; width:25%}
 	#content .large-4 {position:relative; width:33.33333%}
@@ -210,7 +211,7 @@
 #content label.error {color:#c60f13}
 
 
-#content #dropdown {border-radius: 3px; position: absolute; right: initial; padding: 1.25em; width: 100%; min-width:100%; margin:0}
+#content #dropdown {border-radius:3px; position:absolute; right:auto; padding:1.25em; width:100%; min-width:100%; margin:0}
 #content #dropdown label {display:inline}
 #content .action .icon {vertical-align:middle; margin:-1px 2px 0 10px}
 #content .full-width {width:100%}

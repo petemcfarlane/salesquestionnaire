@@ -17,7 +17,7 @@ if (isset($_POST['contactId']) && is_numeric($_POST['contactId'])) {
 			$aids[] = $addressbook['id'];
 		}
 
-		if (!in_array($data['addressbookid'], $aids) ) return;
+		if (!in_array($data['addressbookid'], $aids) ) throw new Exception("Contact not in your addressbook");
 		
 		$vcard = Sabre\VObject\Reader::read($data['carddata']);
 		$contact['details'] = OCA\Contacts\VCard::structureContact($vcard);
@@ -26,7 +26,7 @@ if (isset($_POST['contactId']) && is_numeric($_POST['contactId'])) {
 	
 	 	print json_encode($contact);
 
-	} catch (Exception $e) {
-		continue;
+	} catch (Exception $exception) {
+		print json_encode($exception->getMessage());
 	}
 }

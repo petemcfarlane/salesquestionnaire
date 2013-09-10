@@ -41,8 +41,8 @@ $(document).ready(function() {
     function addMeetingWith() {
         $('#meetingWithMarker').before('<div class="row collapse">'
             + '<input type="hidden" name="meetingWith[]" value="' + $('.suggestions li.selected').data('id') + '" />'
-            + '<div class="small-2 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="' + $('.suggestions li.selected').data('id') + '">Remove</a></div>'
-            + '<div class="small-10 large-11 columns"><input type="text" value="' + $('.suggestions li.selected').text() + '" readonly /></div>'
+            + '<div class="small-3 large-1 columns"><a class="small-12 prefix removePerson button secondary" data-id="' + $('.suggestions li.selected').data('id') + '">Remove</a></div>'
+            + '<div class="small-9 large-11 columns"><input type="text" value="' + $('.suggestions li.selected').text() + '" readonly /></div>'
             + '</div>').val('').focus();
         currentContacts.push( $('.suggestions li.selected').data('id') );
         clearSuggestions();
@@ -142,9 +142,10 @@ $(document).ready(function() {
      * -----------------------*/
 
     $('#content').on('click', '.contact_info_link', function(e) {
+        var contact = $(this);
         e.preventDefault();
         $('.contact-info-container').remove();
-        $.post( OC.filePath('salesquestionnaire', 'ajax', 'contactinfo.php'), 'contactId='+$(this).data('id'), function(data) {
+        $.post( OC.filePath('salesquestionnaire', 'ajax', 'contactinfo.php'), 'contactId='+contact.data('id'), function(data) {
             var details = data['details'];
             var contactInfo = '<div class="contact-info-container row">'
                 + '<div class="contact-info large-12 columns">'
@@ -191,7 +192,7 @@ $(document).ready(function() {
                     }}
                 contactInfo += '<div class="row"><div class="columns large-12 center"><a class="close-contact">Close</a> | <a href="/index.php/apps/contacts#' + data.id + '" data-skip-pjax="true">Edit contact</a></div></div></div>'
             + '</div>';
-            $('.contact_info_link[data-id='+data['id']+']').after(contactInfo);
+            contact.after(contactInfo);
             
             $('.close-contact').click(function() {
                 $('.contact-info-container').remove();

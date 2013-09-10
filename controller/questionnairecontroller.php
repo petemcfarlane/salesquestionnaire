@@ -2,26 +2,27 @@
 
 namespace OCA\SalesQuestionnaire\Controller;
 
+use \OCA\AppFramework\Core\API;
+use \OCA\AppFramework\Http\Request;
 use \OCA\AppFramework\Controller\Controller;
 use \OCA\AppFramework\Http\JSONResponse;
-use \Exception;
+use \OCA\AppFramework\Http\RedirectResponse;
+use \OCA\AppFramework\Http\TemplateResponse;
 use \OCA\SalesQuestionnaire\Db\Questionnaire;
 use \OCA\SalesQuestionnaire\Db\QuestionnaireMapper;
-use \OCA\AppFramework\Http\TemplateResponse;
+use \Exception;
 
 class QuestionnaireController extends Controller {
-
-
-    public function __construct($api, $request){
+	
+    public function __construct(API $api, Request $request, $questionnaireMapper = null){
         parent::__construct($api, $request);
-		$this->questionnaireMapper = new QuestionnaireMapper($this->api);
+		$this->questionnaireMapper = is_null($questionnaireMapper) ? new QuestionnaireMapper($this->api) : $questionnaireMapper;
 		$this->api->addStyle('salesquestionnaire');
 		$this->api->addScript('salesquestionnaire');
 		$this->api->addScript('3rdparty/jquery.pjax');
 		$this->renderas = isset($_SERVER['HTTP_X_PJAX']) ? '' : 'user';
 		$this->params = array('requesttoken' => \OC_Util::callRegister() );
     }
-
 
 	public function formatDate($date) {
 		$pattern1 = "/\d{4}-\d{2}-\d{2}/"; // yyyy-mm-dd
@@ -37,7 +38,7 @@ class QuestionnaireController extends Controller {
 		}
 	}
 	
-	protected function questionnaireFromRequest($request) {
+	public function questionnaireFromRequest($request) {
 		$questionnaire = new Questionnaire;
 		$questionnaire->setCustomer($request->customer);
 		$questionnaire->setCustomerAddress($request->customerAddress);
@@ -49,7 +50,7 @@ class QuestionnaireController extends Controller {
 		$questionnaire->setMeetingDate(self::formatDate($request->meetingDate));
 		$questionnaire->setMeetingLocation($request->meetingLocation);
 		$questionnaire->setRepresentative($request->representative);
-		$questionnaire->setMeetingPurpose(empty($request->meetingPurpose) ? NULL : implode(', ', $request->meetingPurpose));
+		$questionnaire->setMeetingPurpose(empty($request->meetingPurpose) ? null : implode(', ', $request->meetingPurpose));
 		$questionnaire->setTechnicalAuthority($request->technicalAuthority);
 		$questionnaire->setCommercialAuthority($request->commercialAuthority);
 		$questionnaire->setTechnicalRequirements($request->technicalRequirements);
@@ -79,14 +80,13 @@ class QuestionnaireController extends Controller {
 		return $questionnaire;
 	}
 	
-	
 	public function redirect($url='salesquestionnaire.questionnaire.index', $args=array()) {
-		$response = new TemplateResponse($this->api, "index");
-		$response->addHeader('Location', $this->api->linkToRoute($url, $args) );
+		$response = new RedirectResponse( $this->api->linkToRoute($url, $args) );
+		$response->setStatus(303);
+		//var_dump($response->getHeaders());
 		return $response;
 	}
 	
-
 	public function cmp ($a, $b) {
 		$a = (array)$a;
 		$b = (array)$b;
@@ -103,28 +103,27 @@ class QuestionnaireController extends Controller {
      * @IsSubAdminExemption
      */
     public function index(){
-    	if (isset($this->request->search)) {
-    		try {
+		try {
+	    	if (isset($this->request->search)) {
     			$userQuestionnaires = $this->questionnaireMapper->searchUserQuestionnaires( $this->api->getUserId(), $this->request->search );
-				$this->params['response'] = $this->request->response;
-				$this->params['questionnaires'] = $userQuestionnaires;
-				$this->params['sortby'] = $this->request->sortby;
-				$this->params['direction'] = $this->request->direction;
-				$this->params['search'] = $this->request->search;
-				return $this->render('index', $this->params, $this->renderas);
-    		} catch (Exception $exception) {
-    			var_dump ($exception);
+				$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0, array('search'=>$this->request->search)) );
+			} else {
+				$userQuestionnaires = $this->questionnaireMapper->getUserQuestionnaires( $this->api->getUserId() );
+				$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0) );
 			}
+			usort($questionnaires, array("self", "cmp") );
+	    	$this->params = array_merge($this->params, array(
+	    		'sortby'=>$this->request->sortby,
+	    		'direction'=>$this->request->direction,
+	    		'search'=>$this->request->search,
+				'questionnaires'=>$questionnaires,
+				'response'=>$this->request->response
+			));
+			return $this->render('index', $this->params, $this->renderas, array('X-PJAX-URL'=>$this->api->linkToRoute('salesquestionnaire.questionnaire.index') ) );
+		} catch (Exception $exception) {
+			$this->params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
+			return $this->render('error', $this->params, $this->renderas);
 		}
-
-		$userQuestionnaires = $this->questionnaireMapper->findUserQuestionnaires( $this->api->getUserId() );
-		$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0) );
-		usort($questionnaires, array("self", "cmp") );
-		$this->params['questionnaires'] = $questionnaires;
-		$this->params['response'] = $this->request->response;
-		$this->params['sortby'] = $this->request->sortby;
-		$this->params['direction'] = $this->request->direction;
-		return $this->render('index', $this->params, $this->renderas, array('X-PJAX-URL'=>$this->api->linkToRoute('salesquestionnaire.questionnaire.index') ) );
     }
 	
     /**

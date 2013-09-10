@@ -1,12 +1,13 @@
 <?php
 namespace OCA\SalesQuestionnaire\Controller;
 
+use \Exception;
 use \OCA\AppFramework\Http\Request;
 use \OCA\AppFramework\Http\JSONResponse;
-use \Exception;
+use \OCA\AppFramework\Http\TemplateResponse;
+use \OCA\AppFramework\Http\RedirectResponse;
 use \OCA\SalesQuestionnaire\Db\Questionnaire;
 use \OCA\SalesQuestionnaire\Db\QuestionnaireMapper;
-use \OCA\AppFramework\Http\TemplateResponse;
 use \OCA\AppFramework\Utility\ControllerTestUtility;
 require_once(__DIR__ . "/../classloader.php");
 
@@ -15,21 +16,22 @@ class QuestionnaireControllerTest extends ControllerTestUtility {
 	private $api;
 	private $request;
 	private $controller;
+	private $questionnaireMapper;
 
-	/**
-	 * Gets run before each test
-	 */
 	public function setUp(){
 		$this->api = $this->getAPIMock();
 		$this->request = new Request();
-		$this->controller = new QuestionnaireController($this->api, $this->request);
-		$this->user = "Pete";
+		
+
+		$this->questionnaireMapper = $this->getMock('QuestionnaireMapper', array('getUserQuestionnaires'));
+		$this->questionnaireMapper->expects($this->any())
+							->method('getUserQuestionnaires')
+							->will($this->returnValue(array('id'=>1)));
+		$this->controller = new QuestionnaireController($this->api, $this->request, $this->questionnaireMapper);
 	}
 
-
 	public function testQuestionnaireControllerConstruct(){
-		$questionnaireMapper = new QuestionnaireMapper($this->api);
-		$this->assertEquals($questionnaireMapper, $this->controller->questionnaireMapper);
+		// $this->assertTrue($this->controller->questionnaireMapper instanceof QuestionnaireMapper);
 		$this->assertEquals('user', $this->controller->renderas);
 		$_SERVER['HTTP_X_PJAX'] = 'true';
 		$pjaxQuestionnaire = new QuestionnaireController($this->api, $this->request);
@@ -66,12 +68,147 @@ class QuestionnaireControllerTest extends ControllerTestUtility {
 		$this->assertEquals("1989-05-19 00:00:00", $this->controller->formatDate($date13));
 	}
 
-	public function testRedirect() {
-		$this->assertTrue($this->controller->redirect() instanceof TemplateResponse);
+	public function testQuestionnaireFromRequest() {
+		$request = new Request(array('post' => array(
+			'requesttoken' => '20b11d69dd8cb268508f',
+			'customer' => 'FooBar',
+			'customerWebsite' => 'http://foobar.com',
+			'customerAddress' => '1 Foo, Bar lane, XYZ',
+			'projectName' => 'BazQux',
+			'projectType' => 'Qux type',
+			'platform' => 'Bax platform',
+			'meetingDate' => '1/1/2013',
+			'meetingLocation' => 'FooLand',
+			'representative' => 'Foobody',
+			'technicalAuthority' => 'Barry',
+			'commercialAuthority' => 'Baz',
+			'technicalRequirements' => 'Foo, Bar',
+			'commercialRequirements' => 'Baz, Qux',
+			'otherRequirements' => 'Food',
+			'meetingNotes' => 'foofoofoo',
+			'purchaseDecision' => '2013-01-01',
+			'supplyEvaluation' => '2013-01-01',
+			'optimizeBy' => '2013-01-01',
+			'manufactureDate' => '2013-01-01',
+			'retailDate' => '2013-01-01',
+			'minimumOrder' => '1',
+			'rampYear1' => '2',
+			'rampYear2' => '',
+			'rampYear3' => '4',
+			'territories' => 'World',
+			'retailers' => 'Shops',
+			'bom' => '£99',
+			'rrp' => '£999',
+			'licenseFee' => '£9',
+			'oem' => 'Foob',
+			'convince' => 'Barb',
+			'tasks' => 'foo to bar',
+			'generalNotes' => 'baz baz',
+			'riskAssessment' => 'qux qux'
+		)));
+		
+		$questionnaire = $this->controller->questionnaireFromRequest($request);
+		$this->assertTrue($questionnaire instanceof Questionnaire);
+		$this->assertEquals($questionnaire->getCustomer(), 'FooBar');
+		$this->assertEquals($questionnaire->getCustomerWebsite(), 'http://foobar.com');
+		$this->assertEquals($questionnaire->getCustomerAddress(), '1 Foo, Bar lane, XYZ');
+		$this->assertEquals($questionnaire->getProjectName(), 'BazQux');
+		$this->assertEquals($questionnaire->getProjectType(), 'Qux type');
+		$this->assertEquals($questionnaire->getPlatform(), 'Bax platform');
+		$this->assertEquals($questionnaire->getMeetingDate(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getMeetingLocation(), 'FooLand');
+		$this->assertEquals($questionnaire->getRepresentative(), 'Foobody');
+		$this->assertEquals($questionnaire->getMeetingPurpose(), null);
+		$this->assertEquals($questionnaire->getTechnicalAuthority(), 'Barry');
+		$this->assertEquals($questionnaire->getCommercialAuthority(), 'Baz');
+		$this->assertEquals($questionnaire->getTechnicalRequirements(), 'Foo, Bar');
+		$this->assertEquals($questionnaire->getCommercialRequirements(), 'Baz, Qux');
+		$this->assertEquals($questionnaire->getOtherRequirements(), 'Food');
+		$this->assertEquals($questionnaire->getMeetingNotes(), 'foofoofoo');
+		$this->assertEquals($questionnaire->getPurchaseDecision(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getSupplyEvaluation(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getOptimizeBy(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getManufactureDate(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getRetailDate(), '2013-01-01 00:00:00');
+		$this->assertEquals($questionnaire->getMinimumOrder(), '1');
+		$this->assertEquals($questionnaire->getRampYear1(), '2');
+		$this->assertEquals($questionnaire->getRampYear2(), null);
+		$this->assertEquals($questionnaire->getRampYear3(), '4');
+		$this->assertEquals($questionnaire->getTerritories(), 'World');
+		$this->assertEquals($questionnaire->getRetailers(), 'Shops');
+		$this->assertEquals($questionnaire->getBom(), '£99');
+		$this->assertEquals($questionnaire->getRrp(), '£999');
+		$this->assertEquals($questionnaire->getLicenseFee(), '£9');
+		$this->assertEquals($questionnaire->getOem(), 'Foob');
+		$this->assertEquals($questionnaire->getConvince(), 'Barb');
+		$this->assertEquals($questionnaire->getTasks(), 'foo to bar');
+		$this->assertEquals($questionnaire->getGeneralNotes(), 'baz baz');
+		$this->assertEquals($questionnaire->getRiskAssessment(), 'qux qux');
 	}
 
-	public function testSortByUpdatedAt() {
+	public function testRedirect() {
+		$this->assertTrue($this->controller->redirect() instanceof RedirectResponse);
+		$url = 'salesquestionnaire.questionnaire.index';
+		$this->api->expects($this->once())
+				  ->method('linkToRoute')
+				  ->will($this->returnValue($url));
 
+		$redirect = $this->controller->redirect($url);
+		$this->assertEquals($url, $redirect->getRedirectUrl());
+	}
+
+	public function testCmp() {
+		$questionnaires = array(
+			array('customer' => 'aaa', 'updatedAt' => '2013-08-27 12:00:00'),
+			array('customer' => 'bbb', 'updatedAt' => '2013-08-25 12:00:00'),
+			array('customer' => 'ccc', 'updatedAt' => '2013-08-26 12:00:00')
+		);
+		
+		$this->assertEquals('-1', $this->controller->cmp($questionnaires[0], $questionnaires[1]) );
+		$this->assertEquals('1', $this->controller->cmp($questionnaires[1], $questionnaires[2]) );
+	}
+	
+	public function testIndexLoads() {
+		$response = $this->controller->index();
+		var_dump($response);
+		$this->assertTrue($response instanceof TemplateResponse);
+		$this->assertEquals('index', $response->getTemplateName() );
+	}
+
+	public function testIndex() {
+		// $stub = $this->getMock('QuestionnaireMapper');
+		// $stub->expects($this->any())
+			 // ->method('getUserQuestionnaires')
+			 // ->will($this->returnValue(true));
+// //		$this->controller->questionnaireMapper = $this->getMock('QuestionnaireMapper');
+// //		$this->controller->questionnaireMapper->expects($this->any())
+// //											  ->method('getUserQuestionnaires');
+		// $this->controller->questionnaireMapper = $stub;
+		// $response = $this->controller->index();
+		// // var_dump($stub->getUserQuestionnaires());
+/*
+		try {
+	    	if (isset($this->request->search)) {
+    			$userQuestionnaires = $this->questionnaireMapper->searchUserQuestionnaires( $this->api->getUserId(), $this->request->search );
+				$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0, array('search'=>$this->request->search)) );
+			} else {
+				$userQuestionnaires = $this->questionnaireMapper->getUserQuestionnaires( $this->api->getUserId() );
+				$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0) );
+			}
+			usort($questionnaires, array("self", "cmp") );
+	    	$this->params = array_merge($this->params, array(
+	    		'sortby'=>$this->request->sortby,
+	    		'direction'=>$this->request->direction,
+	    		'search'=>$this->request->search,
+				'questionnaires'=>$questionnaires,
+				'response'=>$this->request->response
+			));
+			return $this->render('index', $this->params, $this->renderas, array('X-PJAX-URL'=>$this->api->linkToRoute('salesquestionnaire.questionnaire.index') ) );
+		} catch (Exception $exception) {
+			$this->params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
+			return $this->render('error', $this->params, $this->renderas);
+		}
+*/
 	}
 
 	public function testAnnotations(){
@@ -94,309 +231,4 @@ class QuestionnaireControllerTest extends ControllerTestUtility {
 		$this->assertEquals('new', $response->getTemplateName() );
 	}
 
-	//public function testIndex(){
-		//$this->api->expects($this->once())
-		//	->method('getUserId')
-		//	->will($this->returnValue($this->user));
-		//$response = $this->controller->index();
-		//$this->assertTrue($response instanceof TemplateResponse);
-		//$this->assertEquals('main', $response->getTemplateName());
-	//}
-
-
-    /*public function __construct($api, $request){
-        parent::__construct($api, $request);
-		$this->questionnaireMapper = new QuestionnaireMapper($this->api);
-		$this->api->addStyle('salesquestionnaire');
-		$this->api->addScript('salesquestionnaire');
-		$this->api->addScript('3rdparty/jquery.pjax');
-		$this->renderas = isset($_SERVER['HTTP_X_PJAX']) ? '' : 'user';
-    }
-
-
-	protected function formatDate($date) {
-		$pattern1 = "/\d{4}-\d{2}-\d{2}/"; // yyyy-mm-dd
-		$pattern2 = "/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/"; // dd/mm/yy or dd.mm.yy(yy) or dd-mm-yy(yy)
-		if (preg_match($pattern1, $date, $match1) ) {
-			return date("Y-m-d H:i:s", strtotime($date));
-		} elseif (preg_match($pattern2, $date, $match2) ) {
-			return date("Y-m-d H:i:s", mktime(0,0,0,$match2[2],$match2[1],$match2[3]));
-		} elseif ($date==""){
-			return NULL;
-		} else {
-			throw new Exception("Error with date, format must be dd/mm/yyyy");
-		}
-	}
-	
-	protected function questionnaireFromRequest($request) {
-		$questionnaire = new Questionnaire;
-		$questionnaire->setcustomer($request->customer);
-		$questionnaire->setcustomerAddress($request->customerAddress);
-		$questionnaire->setcustomerWebsite($request->customerWebsite);
-		$questionnaire->setprojectName($request->projectName);
-		$questionnaire->setprojectType($request->projectType);
-		$questionnaire->setplatform($request->platform);
-		$questionnaire->setmeetingWith($request->meetingWith);
-		$questionnaire->setmeetingDate(self::formatDate($request->meetingDate));
-		$questionnaire->setrepresentative($request->representative);
-		$questionnaire->settechnicalAuthority($request->technicalAuthority);
-		$questionnaire->setcommercialAuthority($request->commercialAuthority);
-		$questionnaire->settechnicalDiscussion($request->technicalDiscussion);
-		$questionnaire->setcommercialDiscussion($request->commercialDiscussion);
-		$questionnaire->setpresentQuotation($request->presentQuotation);
-		$questionnaire->setnegotiateOrder($request->negotiateOrder);
-		$questionnaire->settechnicalAmbition($request->technicalAmbition);
-		$questionnaire->setotherRequirements($request->otherRequirements);
-		$questionnaire->setcommercialDrives($request->commercialDrives);
-		$questionnaire->setnotes($request->notes);
-		$questionnaire->setpurchaseDecision(self::formatDate($request->purchaseDecision));
-		$questionnaire->setsupplyEvaluation(self::formatDate($request->supplyEvaluation));
-		$questionnaire->setoptimizeBy(self::formatDate($request->optimizeBy));
-		$questionnaire->setmanufactureDate(self::formatDate($request->manufactureDate));
-		$questionnaire->setretailDate(self::formatDate($request->retailDate));
-		$questionnaire->setminimumOrder($request->minimumOrder);
-		$questionnaire->setrampYear1($request->rampYear1);
-		$questionnaire->setrampYear2($request->rampYear2);
-		$questionnaire->setrampYear3($request->rampYear3);
-		$questionnaire->setterritories($request->territories);
-		$questionnaire->setretailers($request->retailers);
-		$questionnaire->setbom($request->bom);
-		$questionnaire->setrrp($request->rrp);
-		$questionnaire->setlicenseFee($request->licenseFee);
-		$questionnaire->setbudgeted($request->budgeted);
-		$questionnaire->setoem($request->oem);
-		$questionnaire->setconvince($request->convince);
-		$questionnaire->settasks($request->tasks);
-		$questionnaire->setgeneralNotes($request->generalNotes);
-		$questionnaire->setriskAssessment($request->riskAssessment);
-		return $questionnaire;
-	}
-	
-	
-	protected function redirect($url='salesquestionnaire.questionnaire.index', $params=array()) {
-		$response = new TemplateResponse($this->api, "index");
-		$response->addHeader('Location', $this->api->linkToRoute($url, $params) );
-		return $response;
-	}
-	
-	public function sortByUpdatedAt($questionnaires){
-		usort($questionnaires, function($a, $b){
-			$a = (array)$a;
-			$b = (array)$b;
-			if($a['updatedAt']==$b['updatedAt']) return 0;
-		    return $a['updatedAt'] < $b['updatedAt']?1:-1;
-		});
-		return $questionnaires;
-	}
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function index(){
-		$userQuestionnaires = $this->questionnaireMapper->findUserQuestionnaires( $this->api->getUserId() );
-		$questionnaires = array_merge($userQuestionnaires, \OCP\Share::getItemsSharedWith('salesquestionnaire', 0) );
-		$params['response'] = $this->request->response;
-		$params['questionnaires'] = self::sortByUpdatedAt($questionnaires);
-		return $this->render('index', $params, $this->renderas);
-    }
-	
-    /**
-     * @CSRFExemption
-	 * @IsAdminExemption
-	 * @IsSubAdminExemption
-     */
-    /*public function newForm(){
-        return $this->render('new', array(), $this->renderas);
-    }
-
-
-    /**
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-   /*public function create(){
-		try {
-			$questionnaire = self::questionnaireFromRequest($this->request);
-			if ( empty($this->request->customer) ) throw new Exception("Customer must be set", 1);
-			$questionnaire->setCreatedAt(date("Y-m-d H:i:s"));
-			$questionnaire->setUid($this->api->getUserId());
-			$questionnaire = $this->questionnaireMapper->insert($questionnaire);
-			return $this->redirect( 'salesquestionnaire.questionnaire.show', array( "Id" => $questionnaire->getId(), "response" => array("status"=>"success", "message"=>"New sales questionnaire successfully added") ) );
-		} catch (Exception $exception) {
-			$params['questionnaire'] = $questionnaire;
-			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('new', $params, $this->renderas);
-		}
-    }
-
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function show(){
-		try {
-			$questionnaire = $this->questionnaireMapper->findByIdAndUser( $this->request->Id, $this->api->getUserId() );
-			$params['response'] = $this->request->response;
-			$params['questionnaire'] = $questionnaire;
-	        return $this->render('show', $params, $this->renderas);
-		} catch (Exception $exception) {
-			if ($exception->getMessage() == 'No matching entry found') {
-				try {
-					$shared = \OCP\Share::getItemSharedWith('salesquestionnaire', $this->request->Id );
-					if ( !($shared['permissions'] & \OCP\PERMISSION_READ) ) 
-						throw new Exception("You don't have permissions to see this sales questionnaire");
-					$questionnaire = (array)$this->questionnaireMapper->findById( $shared['item_target'] );
-					if ($shared['permissions'] & \OCP\PERMISSION_CREATE) $questionnaire['permissions'][] = "CREATE";
-					if ($shared['permissions'] & \OCP\PERMISSION_READ)   $questionnaire['permissions'][] = "READ";
-					if ($shared['permissions'] & \OCP\PERMISSION_UPDATE) $questionnaire['permissions'][] = "UPDATE";
-					if ($shared['permissions'] & \OCP\PERMISSION_DELETE) $questionnaire['permissions'][] = "DELETE";
-					if ($shared['permissions'] & \OCP\PERMISSION_SHARE)  $questionnaire['permissions'][] = "SHARE";
-					$params['response'] = $this->request->response;
-					$params['questionnaire'] = $questionnaire;
-			        return $this->render('show', $params, $this->renderas);
-				} catch (Exception $exception) {
-					$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-					return $this->render('error', $params, $this->renderas);
-				}
-			}
-			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('error', $params, $this->renderas);
-		}
-	}
-
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function edit(){
-		try {
-			$params['questionnaire'] = $this->questionnaireMapper->findByIdAndUser($this->request->Id, $this->api->getUserId() );
-	        return $this->render('edit', $params, $this->renderas);
-		} catch (Exception $exception) {
-			if ($exception->getMessage() == 'No matching entry found' ){
-				try {
-					$shared = \OCP\Share::getItemSharedWith('salesquestionnaire', $this->request->Id );
-					if ( !($shared['permissions'] & \OCP\PERMISSION_UPDATE) ) 
-						throw new Exception("You don't have permissions to edit this sales questionnaire");
-					$params['questionnaire'] = $this->questionnaireMapper->findById($shared['item_target']);
-			        return $this->render('edit', $params, $this->renderas);
-				} catch (Exception $exception) {
-					$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-					return $this->render('error', $params, $this->renderas);					
-				}
-			}
-			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('error', $params, $this->renderas);
-		}
-    }
-
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function update(){
-		try {
-			$questionnaire = $this->questionnaireMapper->findByIdAndUser( $this->request->Id, $this->api->getUserId() );
-			$questionnaire = self::questionnaireFromRequest($this->request);
-			if ( empty($this->request->customer) ) throw new Exception("Customer must be set", 1);
-			$questionnaire->setId($this->request->Id);
-			$questionnaire->setUpdatedAt(date("Y-m-d H:i:s"));
-			$questionnaire->setModifiedBy($this->api->getUserId());
-			$this->questionnaireMapper->update($questionnaire);
-			return $this->redirect( 'salesquestionnaire.questionnaire.show', array( "Id" => $questionnaire->getId(), "response"=>array("status"=>"success", "message"=>"Susessfully updated sales questionnaire.") ) );
-		} catch (Exception $exception) {
-			if ($exception->getMessage() == "No matching entry found") {
-				try {
-					$shared = \OCP\Share::getItemSharedWith('salesquestionnaire', $this->request->Id );
-					if ( !($shared['permissions'] & \OCP\PERMISSION_UPDATE) ) 
-						throw new Exception("You don't have permissions to edit this sales questionnaire");
-					$questionnaire = self::questionnaireFromRequest($this->request);
-					if ( empty($this->request->customer) ) throw new Exception("Customer must be set", 1);
-					$questionnaire->setId($this->request->Id);
-					$questionnaire->setUpdatedAt(date("Y-m-d H:i:s"));
-					$questionnaire->setModifiedBy($this->api->getUserId());
-					$this->questionnaireMapper->update($questionnaire);
-					return $this->redirect( 'salesquestionnaire.questionnaire.show', array( "Id" => $questionnaire->getId(), "response"=>array("status"=>"success", "message"=>"Susessfully updated sales questionnaire.") ) );
-				} catch (Exception $exception) {
-					$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-					return $this->render('error', $params, $this->renderas);					
-				}
-			}
-			$params['questionnaire'] = $questionnaire;
- 			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('edit', $params, $this->renderas);
-		}
-    }
-
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function delete(){
-		try {
-			$questionnaire = $this->questionnaireMapper->findByIdAndUser($this->request->Id, $this->api->getUserId() );
-			$params['questionnaire'] = $questionnaire;
-	        return $this->render('delete', $params, $this->renderas);
-		} catch (Exception $exception) {
-			if ($exception->getMessage = "No matching entry found") {
-				try {
-					$shared = \OCP\Share::getItemSharedWith('salesquestionnaire', $this->request->Id );
-					if ( !($shared['permissions'] & \OCP\PERMISSION_DELETE) ) 
-						throw new Exception("You don't have permissions to delete this sales questionnaire");
-					$questionnaire = (array)$this->questionnaireMapper->findById( $shared['item_target'] );
-					$params['questionnaire'] = $questionnaire;
-			        return $this->render('delete', $params, $this->renderas);				
-				} catch (Exception $exception) {
-					$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-					return $this->render('error', $params, $this->renderas);				
-				}
-			}
-			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('delete', $params, $this->renderas);
-		}
-	}
-
-
-    /**
-     * @CSRFExemption
-     * @IsAdminExemption
-     * @IsSubAdminExemption
-     */
-    /*public function destroy(){
-		try {
-			//$questionnaire = new Questionnaire();
-			//$questionnaire->setId($this->request->Id);
-			$questionnaire = $this->questionnaireMapper->findByIdAndUser($this->request->Id, $this->api->getUserId() );
-			$this->questionnaireMapper->delete($questionnaire);
-			return $this->redirect( 'salesquestionnaire.questionnaire.index', array("response" => array( "status"=>"success", "message"=>"Sales questionnaire successfully deleted" ) ) );
-		} catch (Exception $exception) {
-			if ($exception->getMessage() == "No matching entry found") {
-				try {
-					$shared = \OCP\Share::getItemSharedWith('salesquestionnaire', $this->request->Id );
-					if ( !($shared['permissions'] & \OCP\PERMISSION_DELETE) ) 
-						throw new Exception("You don't have permissions to delete this sales questionnaire");
-					$questionnaire = $this->questionnaireMapper->findById( $shared['item_target'] );
-					$this->questionnaireMapper->delete($questionnaire);
-					return $this->redirect( 'salesquestionnaire.questionnaire.index', array("response" => array( "status"=>"success", "message"=>"Sales questionnaire successfully deleted" ) ) );
-				} catch (Exception $exception) {
-					$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-					return $this->render('error', $params, $this->renderas);				
-				}
-			}
-			$params['response'] = array("status"=>"alert", "message"=>$exception->getMessage(), "code"=>$exception->getCode() );
-			return $this->render('delete', $params, $this->renderas);
-		}
-    }
-}
-		*/
 }
